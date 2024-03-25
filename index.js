@@ -39,8 +39,9 @@ io.on("connection", (socket) => {
     io.to("main-chat-group").emit("user-joined", data);
     let arrusernames = [];
     arrUsernameSocketid.forEach(function (item) {
-      let x = item.username;
-      arrusernames.push(x);
+      //let x = item.username;
+      let data = { username: item.username, color: item.color };
+      arrusernames.push(data);
     });
     io.to("main-chat-group").emit("userlist", arrusernames);
   });
@@ -61,8 +62,8 @@ io.on("connection", (socket) => {
 
     let arrusernames = [];
     arrUsernameSocketid.forEach(function (item) {
-      let x = item.username;
-      arrusernames.push(x);
+      let data = { username: item.username, color: item.color };
+      arrusernames.push(data);
     });
     io.to("main-chat-group").emit("userlist", arrusernames);
   });

@@ -27,6 +27,7 @@
 
 #send-box{
     line-height: 30px;
+    width: 100%;
 }
 
 
@@ -65,12 +66,25 @@ line-height: 22px;
                  #group-users-list{
                    
                 padding:10px;
-                border: 1px solid black;
                 
+                
+                }
+                #group-users-list ul{
+                        list-style-type: disclosure-closed;
                 }
                 #message{
                     line-height: 30px;
+                    width: 80%;
                 }
                 #send{
-                    line-height: 30px;
+                    height: 8%;
+                    width: 15%;
+                    background-color: #2323ef;
+                        color: white;
+                            border: 0px;
+                                border-radius: 3px;
+                }
+
+                #btn-username-submit{
+                    background-color: #efb9c5;
                 }

@@ -23,8 +23,10 @@
                 $("#send").prop("disabled",true);
                  $("#message").prop("disabled", true);
                 $("#btn-username-submit").click(function(){
+                     username = $("#username").val();
+                     if(username=="") return;
                     $("#loading").show();
-                    username = $("#username").val();
+                   
                     color = getRandomColor();
                     let data = {color:color,
                     username:username}
@@ -38,6 +40,10 @@
                 
                 $("#send").click(function(){
                     let message = $("#message").val();
+                    if(message=="") return;
+                    else if(message="[incomingmessage]"){
+                      //  new Audio('/audio/incoming-message.mp3').play()
+                    }
                     $("#message").val("");
                     let data = {
                                 username:username,
@@ -65,6 +71,9 @@
                     $("#chat-box").append(chatline);
                     var element = document.getElementById("chat-box");
                     element.scrollTop = element.scrollHeight;
+                    if(m=="[incomingmessage]"){
+                        new Audio('/audio/incoming-message.mp3').play()
+                    }
                 });
                 socket.on("user-joined",(data)=>{
                     let chatline = "<div class='chat-line-server'>server: " + data.username+ " joined chat group.</div>";
@@ -75,7 +84,7 @@
                     let li="";
                     $("#group-users-list ul").html("");
                     for(let i=0;i<data.length;i++){
-                         li = li+"<li>"+data[i]+"</li>";
+                         li = li+"<li style='color:"+data[i].color+"'>"+data[i].username+"</li>";
                     }
                     
                     $("#group-users-list ul").append(li);
@@ -92,7 +101,7 @@
 </div>
 
 <div id="send-box" >
-    <input type="text" id="message"/>
+    <input type="text" id="message" autocomplete="off"/>
     <input type="submit" id="send" value="send"/>
 
 </div>
@@ -105,7 +114,7 @@
 </div>
 </div>
 <div id="username-box">
-    <input type="text" placeholder="enter name" id="username"/>
+    <input type="text" placeholder="enter name" id="username" autocomplete="off"/>
     <button type="button" id="btn-username-submit">Submit</button>
 
     <div id="loading">loading...</div>
