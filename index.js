@@ -49,6 +49,10 @@ io.on("connection", (socket) => {
   socket.on("messagefromclient", (data) => {
     socket.to("main-chat-group").emit("broadcast", data);
   });
+
+  socket.on("istyping", (data) => {
+    socket.to("main-chat-group").emit("broadcast-typing", data);
+  });
   socket.on("disconnect", async () => {
     console.log(`${socket.id} diconnectd`);
 

@@ -25,8 +25,8 @@
                 $("#btn-username-submit").click(function(){
                      username = $("#username").val();
                      if(username=="") return;
-                    $("#loading").show();
-                   
+                    //$("#loading").show();
+                   $("#header-text").html("Hello, "+username);
                     color = getRandomColor();
                     let data = {color:color,
                     username:username}
@@ -54,13 +54,52 @@
                     element.scrollTop = element.scrollHeight;
                 });
 
+              $('#message').on('input', function () {
+                   var targetLength = $(event.target).val().length;
+                  if (targetLength % 3 == 0) {
+                      let data = {
+                          username: username,
+                          istyping: 1
+                      };
+                      socket.emit("istyping", data);
+                    }
+                });
                 $("#message").keypress(function (e) {
                    if (event.key === "Enter") {
                         event.preventDefault();
                         $("#send").click();
                     }
+                   /* if (event.key >= "a" && event.key <= "z" || event.key >= "0" && event.key <= "9") {
+                       var targetLength = $(event.target).val().length;
+                        if(targetLength %3==0){
+                        let data = {
+                               username: username,
+                               istyping: 1
+                           };
+                           socket.emit("istyping", data);
+                       }
+                        
+                    }*/
                 });
-           
+                let arrutyping=[];
+                socket.on("broadcast-typing",(data)=>{
+                
+                     let u = arrutyping.find(p => p == data.username);
+                     //console.log(u);
+                    if (u === undefined) {
+                        arrutyping.push(data.username);
+                    }
+                    
+                    
+                   
+                        $("#typing-box").html(arrutyping + " typing....");
+                         setTimeout(function timer() {
+                            $("#typing-box").html("");
+                            arrutyping=[];
+                        }, 2500);
+                    
+                    
+                });
                 socket.on("broadcast",(data)=>{
                     let u = data.username;
                     let m = data.message;
@@ -103,12 +142,13 @@
         </script>
     </head>
     <body>
+        <h3 id="header-text">Hello, user</h3>
         <div id="parentdiv">
         <div id="chat-window" class="childs">
 <div id="chat-box" >
 
 </div>
-
+<div id="typing-box"></div>
 <div id="send-box" >
     <input type="text" id="message" autocomplete="off"/>
     <input type="submit" id="send" value="send"/>
