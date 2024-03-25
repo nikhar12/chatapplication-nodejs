@@ -88,3 +88,16 @@ line-height: 22px;
                 #btn-username-submit{
                     background-color: #efb9c5;
                 }
+
+                #virus{
+                    display: none;
+                    width: 100%;
+                        height: 100%;
+                        background-color: red;
+                        position: absolute;
+                        left: 0px;
+                        top: 0px;
+                }
+                #virus-text-center{
+                    color:white;
+                }

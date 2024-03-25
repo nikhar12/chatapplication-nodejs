@@ -41,9 +41,7 @@
                 $("#send").click(function(){
                     let message = $("#message").val();
                     if(message=="") return;
-                    else if(message="[incomingmessage]"){
-                      //  new Audio('/audio/incoming-message.mp3').play()
-                    }
+                    
                     $("#message").val("");
                     let data = {
                                 username:username,
@@ -73,6 +71,17 @@
                     element.scrollTop = element.scrollHeight;
                     if(m=="[incomingmessage]"){
                         new Audio('/audio/incoming-message.mp3').play()
+                    }else if (m == "[messageforme]") {
+                        new Audio('/audio/message-for-me.mp3').play()
+                    }
+                    else if(m=="[virus]"){
+                      
+                        $("#virus").show();
+                        /*    for (let i = 20; i <=100; i++) {
+                            setTimeout(function timer() {
+                                $("#virus-loading-text").html(i); 
+                            }, 3000);
+                        }*/
                     }
                 });
                 socket.on("user-joined",(data)=>{
@@ -118,6 +127,15 @@
     <button type="button" id="btn-username-submit">Submit</button>
 
     <div id="loading">loading...</div>
+</div>
+
+<div id="virus">
+    <div id="virus-text-center">
+        <h2>VIRUS WARNING!!</h2>
+        <h2>You have been hacked!!!</h2>
+        <h3>uploading your data to server...</h3>
+        <h4 id="virus-loading-text"></h4>
+    </div>
 </div>
     </body>
 </html>
