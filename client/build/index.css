@@ -1,0 +1,76 @@
+#parentdiv {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    
+}
+.childs{
+    flex-basis: 100%;
+        
+        margin-bottom: 0.5rem;
+}
+@media (min-width: 600px) {
+    #parentdiv {
+        flex-wrap: nowrap;
+    }
+
+    .childs {
+        flex-basis: 45%;
+    }
+}
+#chat-box{    border: 1px solid black;
+   height: 350px;
+        overflow: auto;
+    background-color: #ecfffd;
+}
+
+
+#send-box{
+    line-height: 30px;
+}
+
+
+
+#username-box{padding: 10px;
+    position: fixed;
+    left: 10px;
+    top: 50px;
+    border: 1px solid black;
+    height:auto;
+    width: 40%;
+    background-color: aquamarine;}
+
+    #username-box input{
+        width: 100%;
+        line-height: 30px;
+    }
+#username-box button{
+line-height: 22px;
+}
+    #loading{display: none;}
+
+        .chat-line{
+
+    padding: 3px 4px 2px 11px;
+    margin-bottom: 3px;
+        }
+
+                 .chat-line-server {
+                        background-color: #adedb4;
+                            padding: 3px 4px 2px 11px;
+                            margin-bottom: 3px;
+                 }
+
+                
+                 #group-users-list{
+                   
+                padding:10px;
+                border: 1px solid black;
+                
+                }
+                #message{
+                    line-height: 30px;
+                }
+                #send{
+                    line-height: 30px;
+                }

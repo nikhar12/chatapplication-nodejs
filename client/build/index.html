@@ -1,0 +1,114 @@
+<html>
+    <head>
+        <script src="https://cdn.socket.io/4.7.5/socket.io.js"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+            integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="index.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <script>
+            function getRandomColor() {
+                    var letters = '0123456789ABCDEF';
+                    var color = '#';
+                    for (var i = 0; i < 6; i++) {
+                        color += letters[Math.floor(Math.random() * 16)];
+                    }
+                    return color;
+                }
+            const socket = io();
+            let username;
+    let color;
+            $(document).ready(function(){
+                let bool=false;
+                $("#send").prop("disabled",true);
+                 $("#message").prop("disabled", true);
+                $("#btn-username-submit").click(function(){
+                    $("#loading").show();
+                    username = $("#username").val();
+                    color = getRandomColor();
+                    let data = {color:color,
+                    username:username}
+                    socket.emit("username-color",data);
+                    $("#username-box").hide();
+                    bool=true;
+                    console.log(bool);
+                     $("#send").prop("disabled", false);
+                    $("#message").prop("disabled", false);
+                });
+                
+                $("#send").click(function(){
+                    let message = $("#message").val();
+                    $("#message").val("");
+                    let data = {
+                                username:username,
+                                message: message,
+                            color:color}
+                    socket.emit("messagefromclient",data)
+                    let chatline = "<div class='chat-line'><span style='color:"+color+"'>" + username + "</span>: " + message + "</div>";
+                    $("#chat-box").append(chatline);
+                    var element = document.getElementById("chat-box");
+                    element.scrollTop = element.scrollHeight;
+                });
+
+                $("#message").keypress(function (e) {
+                   if (event.key === "Enter") {
+                        event.preventDefault();
+                        $("#send").click();
+                    }
+                });
+           
+                socket.on("broadcast",(data)=>{
+                    let u = data.username;
+                    let m = data.message;
+                    let c = data.color;
+                    let chatline = "<div class='chat-line'><span style='color:"+c+"'>"+u+"</span>: "+m+"</div>";
+                    $("#chat-box").append(chatline);
+                    var element = document.getElementById("chat-box");
+                    element.scrollTop = element.scrollHeight;
+                });
+                socket.on("user-joined",(data)=>{
+                    let chatline = "<div class='chat-line-server'>server: " + data.username+ " joined chat group.</div>";
+                    $("#chat-box").append(chatline);
+                })
+
+                socket.on("userlist",(data)=>{
+                    let li="";
+                    $("#group-users-list ul").html("");
+                    for(let i=0;i<data.length;i++){
+                         li = li+"<li>"+data[i]+"</li>";
+                    }
+                    
+                    $("#group-users-list ul").append(li);
+                })
+         
+            });
+        </script>
+    </head>
+    <body>
+        <div id="parentdiv">
+        <div id="chat-window" class="childs">
+<div id="chat-box" >
+
+</div>
+
+<div id="send-box" >
+    <input type="text" id="message"/>
+    <input type="submit" id="send" value="send"/>
+
+</div>
+</div>
+<div id="group-users-list" class="childs">
+    <span>People Online</span>
+<ul>
+    
+</ul>
+</div>
+</div>
+<div id="username-box">
+    <input type="text" placeholder="enter name" id="username"/>
+    <button type="button" id="btn-username-submit">Submit</button>
+
+    <div id="loading">loading...</div>
+</div>
+    </body>
+</html>
