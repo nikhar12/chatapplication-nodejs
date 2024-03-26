@@ -53,6 +53,29 @@ io.on("connection", (socket) => {
   socket.on("istyping", (data) => {
     socket.to("main-chat-group").emit("broadcast-typing", data);
   });
+
+  socket.on("game_request", (data) => {
+    //console.log(data);
+    //username to send request to
+    let tosocket = arrUsernameSocketid.find((o) => o.username == data.to);
+    if (tosocket != null) {
+      io.to(tosocket.socketid).emit("incoming_request", data.from);
+    }
+  });
+  let matchLogger = [];
+  socket.on("requests_response", (data) => {
+    let gameStartObject = {
+      from: data.from,
+      to: data.to,
+      x: data.from,
+      o: data.to,
+      matchno: matchLogger.length + 1,
+    };
+    console.log(gameStartObject);
+    io.to("main-chat-group").emit("game-started", gameStartObject);
+    matchLogger.push(gameStartObject);
+    socket.off("game_request");
+  });
   socket.on("disconnect", async () => {
     console.log(`${socket.id} diconnectd`);
 

@@ -1,11 +1,11 @@
 <html>
     <head>
         <script src="https://cdn.socket.io/4.7.5/socket.io.js"></script>
-        <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
-            integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="index.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+        <script src="ui-game.js"></script>
         <script>
             function getRandomColor() {
                     var letters = '0123456789ABCDEF';
@@ -15,9 +15,10 @@
                     }
                     return color;
                 }
+            let gameOngoing = 0;
             const socket = io();
             let username;
-    let color;
+            let color;
             $(document).ready(function(){
                 let bool=false;
                 $("#send").prop("disabled",true);
@@ -132,16 +133,101 @@
                     let li="";
                     $("#group-users-list ul").html("");
                     for(let i=0;i<data.length;i++){
-                         li = li+"<li style='color:"+data[i].color+"'>"+data[i].username+"</li>";
-                    }
+                        
+                        if(data[i].username==username){
+                            
+                            let textusername = data[i].username+"(me)";
+                            li = li + "<li  id='" + data[i].username + "' style='color:" + data[i].color + "'>" + textusername + "<div id='lidiv-" + data[i].username + "'class='acceptrejectdiv'></div></li>";
+
+                        }else{
+                            li = li + "<li  class='li-usernames' onClick='liclick(event)' id='" + data[i].username + "' style='color:" + data[i].color + "'>" + data[i].username + "<div id='lidiv-" + data[i].username + "'class='acceptrejectdiv'><input type='button' id='acc-"+data[i].username+"' class='acc' onClick='accFunc(event)' value='accept'/><input type='button' id='rej-" + data[i].username +"' class='rej' onClick='rejFunc(event)' value='reject' /></div></li>";
+
+                                             }}
                     
                     $("#group-users-list ul").append(li);
+                                            
                 })
+
+                socket.on("incoming_request",(data)=>{
+                   $("#notifications").html("Game request from: "+data);
+                 $("#notifications").animate({ height: "40px" }, 400);
+                    $("#lidiv-"+data).show();
+                    setTimeout(function () { $("#lidiv-" + data).hide(); },7000);
+                    setTimeout(function(){
+                        $("#notifications").animate({ height: "0px" }, 400);
+                        $("#notifications").html("");
+                    },3500)
+                });
          
-            });
+
+                
+
+                socket.on("game-started",(data)=>{
+
+                    //console.log(data); 
+                    gameOngoing=1; 
+                    $("#group-users-list li").prop("disabled",true);
+                    $("#matchheader").html("Match "+data.matchno+" "+data.from+" vs "+data.to);
+                    $("#div-cross").html(data.x);
+                    $("#div-circle").html(data.o);
+
+                     $("#ginfo").show();
+
+                    if(data.from==username||data.to==username){
+                        //if ur the one playing game
+                        $("#gcontrols").hide();
+                    }
+                    else{
+                        //spectator
+                        $("#gcontrols").show();
+                    }
+                });
+
+            });//document ready
+
+            function liclick(event){
+                if(gameOngoing!=1){
+                    var loading =  document.createElement("img");
+                    loading.src='/images/giphy.gif';
+
+                    loading.style.width = "12%";
+                    
+                 event.target.appendChild(loading);                
+                  setTimeout(function(){
+                     event.target.removeChild(loading);  
+                  },6000);
+                let sendgamerequsername = event.target.id;
+                let data = {from:username,to:sendgamerequsername}
+                socket.emit("game_request",data);
+                //alert(sendgamerequsername);
+                }
+            }
+
+            function accFunc(event){
+                if (gameOngoing != 1) {
+                let id = event.target.id;
+                let a = id.split("-");
+
+
+                let data = {
+                    from: a[1],
+                    to: username
+                }
+                socket.emit("requests_response", data);
+                }
+                
+            }
+            function rejFunc(event){
+                   let id = event.target.id;
+                let a = id.split("-");
+                $("#lidiv-" + a[1]).hide();
+            }
+               
         </script>
     </head>
     <body>
+        <img id='loading' src='/images/giphy.gif' />
+        <div id="notifications"></div>
         <h3 id="header-text">Hello, user</h3>
         <div id="parentdiv">
         <div id="chat-window" class="childs">
@@ -160,6 +246,38 @@
 <ul>
     
 </ul>
+</div>
+<div id="game-window" class="childs">
+
+    <div id="matchheader">
+
+    </div>
+    <div id="gamediv">
+    
+        <div class="gbox" id="1"></div>
+        <div class="gbox" id="2"></div>
+        <div class="gbox" id="3"></div>
+        <div class="gbox" id="4"></div>
+        <div class="gbox" id="5"></div>
+        <div class="gbox" id="6"></div>
+        <div class="gbox" id="7"></div>
+        <div class="gbox" id="8"></div>
+        <div class="gbox" id="9"></div>
+    
+    </div>
+    <div id="ginfo">
+       
+        <img src="/images/ttt-cross.png" />
+        <div id="div-cross"></div>
+        <img src="/images/ttt-circle.png" style="float: right;"/>
+        <div id="div-circle" style="float: right;"></div>
+    </div>
+    <div id="gcontrols">
+        <input type="button" value="Dont want to see"/>
+        <input type="button" value="Vote to Stop" />
+        <input type="button" value="Like the game" />
+    </div>
+
 </div>
 </div>
 <div id="username-box">

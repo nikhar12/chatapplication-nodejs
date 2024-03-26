@@ -15,7 +15,7 @@
     }
 
     .childs {
-        flex-basis: 45%;
+        flex-basis: 33%;
     }
 }
 #chat-box{    border: 1px solid black;
@@ -34,8 +34,8 @@
 
 #username-box{padding: 10px;
     position: fixed;
-    left: 10px;
-    top: 50px;
+    left: 0px;
+    top: 0px;
     border: 1px solid black;
     height:auto;
     width: 40%;
@@ -71,7 +71,13 @@ line-height: 22px;
                 }
                 #group-users-list ul{
                         list-style-type: disclosure-closed;
+                            width: 50%;
                 }
+                                 #group-users-list ul li{
+                                    cursor: pointer;
+                                    padding: 10px;
+                                   
+                                 }
                 #message{
                     line-height: 30px;
                     width: 80%;
@@ -105,5 +111,56 @@ line-height: 22px;
                         color: mediumblue;
                 }
                                #typing-box{
-                                height: 8%;
+                                height: 5%;
                                }
+
+
+                                                           .gbox {
+                                                               height: 31%;
+                                                               width: 31%;
+                                                                
+                                                               background-color: #e3ecff;
+                                                               border: 1px solid black;
+                                                               float: left;
+                                                               cursor: pointer;
+                                                               text-align: center;
+                                                               line-height: 90px;
+                                                           }
+                            
+                                                           #gamediv {
+                                                            opacity: 0.9;
+                                                            position: relative;
+                                                                border: 1px solid red;
+                                                                height: 80%;
+                                                                width: 112%;
+
+                            
+                                                           }
+
+                                                           .acceptrejectdiv{display:none;}
+                                                        #loading{display:none;width: 12%;
+                                                            float: right;}
+#notifications{
+    width: 100%;
+    text-align: center;
+        line-height: 40px;
+        font-size: 18px;
+        font-family: cursive;
+        position: absolute;
+    background-color: #e9f78a;
+    
+}
+
+
+#ginfo img{
+    width: 5%;
+    float:left;
+}
+#ginfo{
+    height:10%;
+}
+#ginfo,#gcontrols{display: none;}
+#div-cross{float:left}
+#div-circle {
+    float: right
+}
