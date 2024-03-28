@@ -81,10 +81,10 @@ function player_game(data) {
 
 function switchturn(turn, m) {
   if (m == 0) {
-    $("#div-circle").css("background-color", "yellow");
+    $("#div-circle").css("background-color", "#03ff93");
     $("#div-cross").css("background-color", "white");
   } else {
-    $("#div-cross").css("background-color", "yellow");
+    $("#div-cross").css("background-color", "#03ff93");
     $("#div-circle").css("background-color", "white");
   }
   if (turn == username) {

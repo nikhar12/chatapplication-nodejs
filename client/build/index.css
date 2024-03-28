@@ -159,13 +159,23 @@ line-height: 22px;
     width: 5%;
     float:left;
 }
-#ginfo{
-    height:15px;
-}
-#ginfo{display: none;}
-#div-cross{float:left}
+
+#ginfo{display: none;
+height: 30px;
+    margin-top: 10px;}
+#div-cross{float: left;
+    font-size: 16px;
+        padding: 0px 6px 3px 6px;
+    color: black;
+   
+        border-radius: 8px;}
 #div-circle {
-    float: right
+    float: right;
+       
+            font-size: 16px;
+                padding: 0px 6px 3px 6px;
+            color: black;
+            border-radius: 8px;
 }
 #gcontrols #players{display:none;}
 #gcontrols #spec {
