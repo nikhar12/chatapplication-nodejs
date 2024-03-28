@@ -311,10 +311,12 @@
                 $("#hidegame").click(function(){
                     if(showboard ==0){
                         $("#gamediv").animate({"opacity": 0},1000);
+                         $("#ginfo").animate({ "opacity": 0 }, 1000);
                         $(this).val("Show game");
                         showboard=1;
                     }else if(showboard ==1){
                         $("#gamediv").animate({ "opacity": 0.9 }, 1000);
+                        $("#ginfo").animate({ "opacity": 0.9 }, 1000);
                           $(this).val("Hide Game");
                         showboard=0;
                     }
@@ -498,7 +500,9 @@
     </div>
 
 </div>
+
 </div>
+<div style="height:35px;"></div>
 <div id="username-box">
     <input type="text" placeholder="enter name" id="username" autocomplete="off"/>
     <button type="button" id="btn-username-submit">Submit</button>

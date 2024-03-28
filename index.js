@@ -71,7 +71,7 @@ io.on("connection", (socket) => {
       arrusernames.push(data);
     });
     io.to("main-chat-group").emit("userlist", arrusernames);
-    let m = matchLogger.find((p) => p.onGoing == 1);
+    let m = matchLogger.find((p) => p.currentMatchID == currentMatchID);
     if (m != null) {
       io.to(socket.id).emit("game-started", m);
     }
@@ -192,10 +192,24 @@ io.on("connection", (socket) => {
       );
       console.log(matchLogger.find((p) => p.onGoing == 1));
       if (gameobject.status == 1) {
-        matchLogger.find((p) => p.onGoing == 1).que = [];
-        matchLogger.find((p) => p.onGoing == 1).turncounter = 0;
-        matchLogger.find((p) => p.onGoing == 1).votecounter = 0;
-        matchLogger.find((p) => p.onGoing == 1).onGoing = 0;
+        matchLogger
+          .find((p) => p.currentMatchID == currentMatchID)
+          .que.splice(
+            0,
+            matchLogger.find((p) => p.currentMatchID == currentMatchID).que
+              .length
+          );
+        console.log(
+          "que at win:" +
+            matchLogger.find((p) => p.currentMatchID == currentMatchID).que
+        );
+        matchLogger.find(
+          (p) => p.currentMatchID == currentMatchID
+        ).turncounter = 0;
+        matchLogger.find(
+          (p) => p.currentMatchID == currentMatchID
+        ).votecounter = 0;
+        matchLogger.find((p) => p.currentMatchID == currentMatchID).onGoing = 0;
         initGameboard();
       }
     }
