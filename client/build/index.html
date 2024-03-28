@@ -1,11 +1,13 @@
+<!doctype html>
 <html>
     <head>
+        <meta charset="UTF-8" />
         <script src="https://cdn.socket.io/4.7.5/socket.io.js"></script>
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"
             integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="index.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="ui-game.js"></script>
+      
         <script>
             function getRandomColor() {
                     var letters = '0123456789ABCDEF';
@@ -19,6 +21,13 @@
             const socket = io();
             let username;
             let color;
+            let currentMatchID;
+           let ifinmatch= 0;
+           let mysign;
+           let opponent;
+           let from,to;
+           let usertype;
+           let blockBox = [];
             $(document).ready(function(){
                 let bool=false;
                 $("#send").prop("disabled",true);
@@ -34,7 +43,7 @@
                     socket.emit("username-color",data);
                     $("#username-box").hide();
                     bool=true;
-                    console.log(bool);
+                    //console.log(bool);
                      $("#send").prop("disabled", false);
                     $("#message").prop("disabled", false);
                 });
@@ -140,22 +149,24 @@
                             li = li + "<li  id='" + data[i].username + "' style='color:" + data[i].color + "'>" + textusername + "<div id='lidiv-" + data[i].username + "'class='acceptrejectdiv'></div></li>";
 
                         }else{
-                            li = li + "<li  class='li-usernames' onClick='liclick(event)' id='" + data[i].username + "' style='color:" + data[i].color + "'>" + data[i].username + "<div id='lidiv-" + data[i].username + "'class='acceptrejectdiv'><input type='button' id='acc-"+data[i].username+"' class='acc' onClick='accFunc(event)' value='accept'/><input type='button' id='rej-" + data[i].username +"' class='rej' onClick='rejFunc(event)' value='reject' /></div></li>";
+                            li = li + "<li  class='li-usernames'><a onClick='liclick(event)' id='" + data[i].username + "' style='color:" + data[i].color + "'>" + data[i].username + "</a><div id='lidiv-" + data[i].username + "'class='acceptrejectdiv'><input type='button' id='acc-"+data[i].username+"' class='acc' onClick='accFunc(event)' value='accept'/><input type='button' id='rej-" + data[i].username +"' class='rej' onClick='rejFunc(event)' value='reject' /></div></li>";
 
                                              }}
                     
                     $("#group-users-list ul").append(li);
                                             
                 })
-
+                
                 socket.on("incoming_request",(data)=>{
                    $("#notifications").html("Game request from: "+data);
                  $("#notifications").animate({ height: "40px" }, 400);
                     $("#lidiv-"+data).show();
-                    setTimeout(function () { $("#lidiv-" + data).hide(); },7000);
+                    $("#"+data).attr("dis","dis")
+                    setTimeout(function () { $("#lidiv-" + data).hide(); $("#"+data).removeAttr("dis"); },7000);
                     setTimeout(function(){
                         $("#notifications").animate({ height: "0px" }, 400);
                         $("#notifications").html("");
+                        
                     },3500)
                 });
          
@@ -163,29 +174,187 @@
                 
 
                 socket.on("game-started",(data)=>{
-
+                   from = data.from; to = data.to;
+                    let chatline = "<div class='chat-line-server'>server: " + data.from + " and "+data.to+" are playing the game</div>";
+                    $("#chat-box").append(chatline);
                     //console.log(data); 
                     gameOngoing=1; 
+                    if(data.from==username){
+                        opponent=data.to;
+                    }
+                    else{opponent=data.from}
+                    currentMatchID=data.currentMatchID;
                     $("#group-users-list li").prop("disabled",true);
                     $("#matchheader").html("Match "+data.matchno+" "+data.from+" vs "+data.to);
                     $("#div-cross").html(data.x);
                     $("#div-circle").html(data.o);
 
+                    if(data.firstchance==data.x){
+                        $("#div-cross").css("background-color", "yellow");
+                    }else{
+                        $("#div-circle").css("background-color", "yellow");
+                    }
                      $("#ginfo").show();
 
                     if(data.from==username||data.to==username){
                         //if ur the one playing game
-                        $("#gcontrols").hide();
+                        usertype = "player";
+                        $("#gcontrols #players").show();
+                         $("#gcontrols #spec").hide();
+                         player_game(data);
+                        
+                         ifinmatch=1;
+                         if(data.x==username){
+                             mysign=1;
+                         }else if(data.o==username){mysign=0;}
                     }
                     else{
                         //spectator
-                        $("#gcontrols").show();
+                        usertype="spec";
+                        $("#gcontrols #players").hide();
+                        $("#gcontrols #spec").show();
+                         spectator_game(data);
+                         from=data.from;to=data.to;
+                         mysign=-1;
+                         ifinmatch=0;
+                          if (data.que != []) {
+                            let insertImage;
+                            data.que.forEach(element => {
+                                if(element.k==0){
+                                    insertImage = "<img src='/images/ttt-circle.png'/>";
+                                }else{
+                                insertImage = "<img src='/images/ttt-cross.png'/>";}
+                                $("#"+element.boxnumber).html(insertImage);
+
+                            });
+                        }
                     }
+                      $("#like").prop("disabled",false);
+                      $("#abandongame").prop("disabled", false);
+                      $("#votetostop").prop("disabled", false);
                 });
+
+                socket.on("userturn-broadcast",(data)=>{
+                   // console.log(data);
+                    
+                    if(ifinmatch==1){
+                        if(data.to==username){
+                            let insertImage;
+                            if (data.k == 1) {
+                                insertImage = "<img src='/images/ttt-cross.png'/>";
+                            }
+                            else{
+                                insertImage = "<img src='/images/ttt-circle.png'/>";
+                            }
+                            $("#"+data.boxnumber).html(insertImage);
+                            blockBox.push(data.boxnumber);
+                            //$(".gbox").removeAttr("disabled");
+                            //$("#" + data.boxnumber).attr('disabled', 'disabled');
+
+                           
+
+                        }
+                    }
+                    else{
+                         let insertImage;
+                        if (data.k == 1) {
+                            insertImage = "<img src='/images/ttt-cross.png'/>";
+                        }
+                        else {
+                            insertImage = "<img src='/images/ttt-circle.png'/>";
+                        }
+                        $("#" + data.boxnumber).html(insertImage);
+                    }
+                     turn = data.to;
+                    let m = 0;
+                    if (data.k == 1) {
+                        m = 0;
+                    } else { m = 1; }
+                    switchturn(turn, m);
+
+               if (data.gamewinobj.status == 1) {
+                    //if won by someone
+                    if(data.gamewinobj.wonby==1){
+                        //1
+                        dropdownnotifications(from+ " won the match..",7000)
+                        
+                    }else{
+                        //0
+                        dropdownnotifications(to + " won the match..", 7000)
+                    }
+                    data.gamendby="";
+                    gameEndFunc(data)
+                }    
+
+                });
+
+
+
+                //abandon the game by player
+                $("#abandongame").click(function(){
+                    let data = {
+                        currentMatchID:currentMatchID,
+                        player:username,
+                        type:"abandon"
+                    }
+
+                     socket.emit("game_controls",data)
+                     $(this).prop("disabled",true);
+                });
+
+                socket.on("game-abandoned",(data)=>{
+                    gameEndFunc(data);
+                });
+
+                //hide game
+                let showboard=0;
+                $("#hidegame").click(function(){
+                    if(showboard ==0){
+                        $("#gamediv").animate({"opacity": 0},1000);
+                        $(this).val("Show game");
+                        showboard=1;
+                    }else if(showboard ==1){
+                        $("#gamediv").animate({ "opacity": 0.9 }, 1000);
+                          $(this).val("Hide Game");
+                        showboard=0;
+                    }
+                 });
+
+                 //voting
+                 $("#votetostop").click(function(){
+                    let data = {
+                         currentMatchID: currentMatchID,
+                         player: username,
+                         type: "votetostop"
+                     }
+
+                     socket.emit("game_controls", data)
+                    $(this).prop("disabled",true);
+
+                 });
+
+                 //like the game
+                    $("#like").click(function () {
+                    let data = {
+                        currentMatchID: currentMatchID,
+                        player: username,
+                        type: "like"
+                    }
+
+                    socket.emit("game_controls", data)
+                    $(this).prop("disabled", true);
+
+                });
+
+
+
 
             });//document ready
 
+            
             function liclick(event){
+                if(event.target.getAttribute('dis')=="dis") return;
+                //a event clcik
                 if(gameOngoing!=1){
                     var loading =  document.createElement("img");
                     loading.src='/images/giphy.gif';
@@ -199,7 +368,7 @@
                 let sendgamerequsername = event.target.id;
                 let data = {from:username,to:sendgamerequsername}
                 socket.emit("game_request",data);
-                //alert(sendgamerequsername);
+                //console.log("liclick a func to:"+sendgamerequsername);
                 }
             }
 
@@ -214,6 +383,7 @@
                     to: username
                 }
                 socket.emit("requests_response", data);
+                $("#lidiv-" + a[1]).hide();
                 }
                 
             }
@@ -222,8 +392,52 @@
                 let a = id.split("-");
                 $("#lidiv-" + a[1]).hide();
             }
-               
+               function dropdownnotifications(text,timer1){
+                   $("#notifications").html(text);
+                   $("#notifications").animate({ height: "40px" }, 400);
+                   setTimeout(function () {
+                       $("#notifications").animate({ height: "0px" }, 400);
+                       $("#notifications").html("");
+                   }, timer1)
+               }
+
+
+               function gameEndFunc(data){
+                console.log("gameend: "+data);
+                $("#group-users-list li").removeAttr('disabled');
+                   if (data.gameendby == "abandoning") {
+                       let chatline = "<div class='chat-line-server'>server: " + data.player + " abandoned the game</div>";
+                       $("#chat-box").append(chatline);
+                   }
+                   else if (data.gameendby == "voting") {
+                       let chatline = "<div class='chat-line-server'>server: game voted to stop</div>";
+                       $("#chat-box").append(chatline);
+                   }
+
+                   //$(".gbox").prop("disabled", false);
+                   blockBox=[1,2,3,4,5,6,7,8,9];//to block all boxes at game end
+                   //clean board backend
+                   initGame();
+                   //clean board ui
+                   setTimeout(function(){
+                       $(".gbox").each(function (index) {
+                           $(this).html("");
+                       });
+                    },5000);
+                   
+                   //clean board
+                   
+                   gameOngoing = 0;
+                     $("#div-circle").css("background-color", "white");
+                   $("#div-cross").css("background-color", "white");
+
+                   $("#gcontrols #spec").hide();
+                   $("#gcontrols #players").hide();
+                   $("#ginfo").hide();
+
+               }
         </script>
+        <script src="ui-game.js"></script>
     </head>
     <body>
         <img id='loading' src='/images/giphy.gif' />
@@ -273,9 +487,14 @@
         <div id="div-circle" style="float: right;"></div>
     </div>
     <div id="gcontrols">
-        <input type="button" value="Dont want to see"/>
-        <input type="button" value="Vote to Stop" />
-        <input type="button" value="Like the game" />
+        <div id="spec">
+        <input type="button" value="Hide Game" id="hidegame"/>
+        <input type="button" value="Vote to Stop"  id="votetostop"/>
+        <!-- <input type="button" value="Like the game" id="like" /> -->
+        </div>
+        <div id="players">
+            <input type="button" value="Abandon game" id="abandongame"/>
+        </div>
     </div>
 
 </div>

@@ -83,12 +83,13 @@ line-height: 22px;
                     width: 80%;
                 }
                 #send{
-                    height: 8%;
+                    height: 30px;
                     width: 15%;
                     background-color: #2323ef;
                         color: white;
                             border: 0px;
                                 border-radius: 3px;
+                                box-shadow: 1px 1px 1px black;
                 }
 
                 #btn-username-submit{
@@ -124,16 +125,16 @@ line-height: 22px;
                                                                float: left;
                                                                cursor: pointer;
                                                                text-align: center;
-                                                               line-height: 90px;
+                                                              
                                                            }
                             
                                                            #gamediv {
                                                             opacity: 0.9;
-                                                            position: relative;
-                                                                border: 1px solid red;
-                                                                height: 80%;
-                                                                width: 112%;
-
+                                                                position: relative;
+                                                                    background: #83a4e9;
+                                                                height: 300px;
+                                                                width: 100%;
+                                                                padding: 16px;
                             
                                                            }
 
@@ -145,8 +146,8 @@ line-height: 22px;
     text-align: center;
         line-height: 40px;
         font-size: 18px;
-        font-family: cursive;
-        position: absolute;
+        
+        position: fixed;
     background-color: #e9f78a;
     
 }
@@ -157,10 +158,66 @@ line-height: 22px;
     float:left;
 }
 #ginfo{
-    height:10%;
+    height:15px;
 }
-#ginfo,#gcontrols{display: none;}
+#ginfo{display: none;}
 #div-cross{float:left}
 #div-circle {
     float: right
+}
+#gcontrols #players{display:none;}
+#gcontrols #spec {
+    display: none;
+    
+}
+#gcontrols #spec input{
+    font-size: 10px;
+}
+#gcontrols{height:15px;}
+
+#abandongame{
+    height:30px;
+    background-color: #ff0000;
+    border:1px solid white;
+    color:white;    
+    box-shadow: 1px 1px 1px black;
+    border-radius: 3px;
+}
+
+#hidegame{
+height: 30px;
+    background-color: #0bba90;
+    border: 1px solid white;
+    color: white;
+    box-shadow: 1px 1px 1px black;
+    border-radius: 3px;
+}
+#votetostop{
+height: 30px;
+    background-color: #ff0000;
+    border: 1px solid white;
+    color: white;
+    box-shadow: 1px 1px 1px black;
+    border-radius: 3px;
+}
+.gbox img{
+    display: block;
+        margin: 0 auto;
+        width: 60%;
+}
+.acc{
+    height: 30px;
+        background-color: #0c9c15;
+        border: 1px solid white;
+        color: white;
+        box-shadow: 1px 1px 1px black;
+        border-radius: 3px;
+}
+.rej{
+    height: 30px;
+        background-color: #9c0c0c;
+        border: 1px solid white;
+        color: white;
+        box-shadow: 1px 1px 1px black;
+        border-radius: 3px;
 }
