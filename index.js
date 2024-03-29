@@ -24,7 +24,7 @@ app.use(express.json());
 let arrUsernameSocketid = [];
 let matchLogger = [];
 let gameStartObject;
-let currentMatchID;
+let currentMatchID = "";
 let que = [];
 let gameBoard = [
   [-1, -1, -1],
@@ -73,6 +73,7 @@ io.on("connection", (socket) => {
     io.to("main-chat-group").emit("userlist", arrusernames);
     let m = matchLogger.find((p) => p.currentMatchID == currentMatchID);
     if (m != null) {
+      console.log("m:" + m.currentMatchID + " curretmatid" + currentMatchID);
       io.to(socket.id).emit("game-started", m);
     }
   });
@@ -114,6 +115,7 @@ io.on("connection", (socket) => {
     io.to("main-chat-group").emit("game-started", gameStartObject);
     matchLogger.push(gameStartObject);
   });
+
   let votecounter = 0;
   socket.on("game_controls", (data) => {
     if (data.type == "abandon") {
@@ -123,11 +125,7 @@ io.on("connection", (socket) => {
           (p) => p.currentMatchID == data.currentMatchID
         ).onGoing = 0;
 
-        let gameendobj = {
-          player: data.player,
-          gameendby: "abandoning",
-        };
-        io.to("main-chat-group").emit("game-abandoned", gameendobj);
+        gameendfunc(data.player, "abandoning");
       }
     } else if (data.type == "votetostop") {
       console.log("votetostop by:" + data.player);
@@ -144,12 +142,7 @@ io.on("connection", (socket) => {
           matchLogger.find(
             (p) => p.currentMatchID == data.currentMatchID
           ).onGoing = 0;
-          let gameendobj = {
-            player: "",
-            gameendby: "voting",
-          };
-          console.log("gameendobj :" + gameendobj);
-          io.to("main-chat-group").emit("game-abandoned", gameendobj);
+          gameendfunc("", "voting");
         }
       }
     } else if (data.type == "like") {
@@ -179,7 +172,10 @@ io.on("connection", (socket) => {
     // console.log(turncounter + " gb:" + gameBoard);
     gameobject.status = 0;
 
-    if (matchLogger.find((p) => p.onGoing == 1).turncounter >= 5) {
+    if (
+      matchLogger.find((p) => p.onGoing == 1).turncounter >= 5 &&
+      matchLogger.find((p) => p.onGoing == 1).turncounter <= 9
+    ) {
       gameobject = gameWinnerDetector(gameBoard);
 
       console.log(
@@ -190,32 +186,23 @@ io.on("connection", (socket) => {
           " wonby " +
           gameobject.wonby
       );
-      console.log(matchLogger.find((p) => p.onGoing == 1));
-      if (gameobject.status == 1) {
-        matchLogger
-          .find((p) => p.currentMatchID == currentMatchID)
-          .que.splice(
-            0,
-            matchLogger.find((p) => p.currentMatchID == currentMatchID).que
-              .length
-          );
-        console.log(
-          "que at win:" +
-            matchLogger.find((p) => p.currentMatchID == currentMatchID).que
-        );
-        matchLogger.find(
-          (p) => p.currentMatchID == currentMatchID
-        ).turncounter = 0;
-        matchLogger.find(
-          (p) => p.currentMatchID == currentMatchID
-        ).votecounter = 0;
-        matchLogger.find((p) => p.currentMatchID == currentMatchID).onGoing = 0;
-        initGameboard();
-      }
     }
+
     data.gamewinobj = gameobject;
 
     io.to("main-chat-group").emit("userturn-broadcast", data);
+
+    if (gameobject.status == 1) {
+      console.log("winning");
+      gameendfunc("", "winning");
+    } else if (
+      matchLogger.find((p) => p.onGoing == 1).turncounter == 9 &&
+      gameobject.status == 0
+    ) {
+      console.log("draw");
+      gameendfunc("", "draw");
+    }
+    console.log("ongoign: " + matchLogger.find((p) => p.onGoing == 1));
   });
 
   socket.on("disconnect", async () => {
@@ -224,7 +211,16 @@ io.on("connection", (socket) => {
     let usernamedisconnected = arrUsernameSocketid.find(
       (p) => p.socketid == socket.id
     );
-
+    let m = matchLogger.find((p) => p.currentMatchID == currentMatchID);
+    if (m != null) {
+      if (
+        m.from == usernamedisconnected.username ||
+        m.to == usernamedisconnected.username
+      ) {
+        //if game ends by player exiting
+        gameendfunc(usernamedisconnected.username, "exiting");
+      }
+    }
     arrUsernameSocketid = arrUsernameSocketid.filter(
       (p) => p.socketid != socket.id
     );
@@ -236,6 +232,34 @@ io.on("connection", (socket) => {
     });
     io.to("main-chat-group").emit("userlist", arrusernames);
   });
+  const gameendfunc = (player, gameendby) => {
+    console.log("gameendfunc player:" + player + " gameendby:" + gameendby);
+    if (gameendby != "winning") {
+      let gameendobj = {
+        player: player,
+        gameendby: gameendby,
+      };
+
+      io.to("main-chat-group").emit("game-abandoned", gameendobj);
+    }
+    //clean everything
+    matchLogger
+      .find((p) => p.currentMatchID == currentMatchID)
+      .que.splice(
+        0,
+        matchLogger.find((p) => p.currentMatchID == currentMatchID).que.length
+      );
+    console.log(
+      "que at gameendfunc:" +
+        matchLogger.find((p) => p.currentMatchID == currentMatchID).que
+    );
+    matchLogger.find((p) => p.currentMatchID == currentMatchID).turncounter = 0;
+    matchLogger.find((p) => p.currentMatchID == currentMatchID).votecounter = 0;
+    matchLogger.find((p) => p.currentMatchID == currentMatchID).onGoing = 0;
+    currentMatchID = "";
+    initGameboard();
+    //
+  };
 });
 
 const gameWinnerDetector = (gameb) => {

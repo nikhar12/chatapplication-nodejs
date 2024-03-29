@@ -6,8 +6,10 @@ $(document).ready(function () {
       if (username == turn) {
         let boxnumber = $(this).attr("id");
         console.log(boxnumber);
+
         if (blockBox.find((p) => p == boxnumber) == boxnumber) return;
         blockBox.push(boxnumber);
+        console.log("blockbox: " + blockBox);
         $(this).html(insertImage);
         //block that box -disable click
         // $(this).prop("disabled", true);

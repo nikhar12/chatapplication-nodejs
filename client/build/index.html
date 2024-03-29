@@ -28,13 +28,27 @@
            let from,to;
            let usertype;
            let blockBox = [];
+           function validateUsername(username) {
+                // Regular expression to check if the username contains only numbers and alphabets
+                var regex = /^[a-z0-9]+$/i;
+
+                // If the username does not match the regular expression, return false
+                if (!regex.test(username)) {
+                    return false;
+                }
+
+                // Otherwise, return true
+                return true;
+            }
             $(document).ready(function(){
                 let bool=false;
                 $("#send").prop("disabled",true);
                  $("#message").prop("disabled", true);
                 $("#btn-username-submit").click(function(){
-                     username = $("#username").val();
-                     if(username=="") return;
+                     username = $("#username").val().trim();
+                      if (username == "") return;
+                      if(!validateUsername(username)) return
+                    
                     //$("#loading").show();
                    $("#header-text").html("Hello, "+username);
                     color = getRandomColor();
@@ -405,15 +419,25 @@
 
 
                function gameEndFunc(data){
-                console.log("gameend: "+data);
+                console.log("gamendfunc player: "+data.player+" by: "+data.gameendby);
                 $("#group-users-list li").removeAttr('disabled');
                    if (data.gameendby == "abandoning") {
-                       let chatline = "<div class='chat-line-server'>server: " + data.player + " abandoned the game</div>";
-                       $("#chat-box").append(chatline);
+                       //let chatline = "<div class='chat-line-server'>server: " + data.player + " abandoned the game</div>";
+                       //$("#chat-box").append(chatline);
+                       dropdownnotifications(data.player+" abandoned the game", 5000);
                    }
                    else if (data.gameendby == "voting") {
-                       let chatline = "<div class='chat-line-server'>server: game voted to stop</div>";
-                       $("#chat-box").append(chatline);
+                       //let chatline = "<div class='chat-line-server'>server: game voted to stop</div>";
+                       //$("#chat-box").append(chatline);
+                        dropdownnotifications("Game voted to stop", 5000);
+                   }
+                   else if(data.gameendby=="exiting"){
+                    /* let chatline = "<div class='chat-line-server'>server: " + data.player + " exited the game</div>";
+                       $("#chat-box").append(chatline); */
+                       dropdownnotifications(data.player+" exited the game", 5000);
+                   }
+                   else if(data.gameendby=="draw"){
+                        dropdownnotifications("Game Draw!!",5000);
                    }
 
                    //$(".gbox").prop("disabled", false);
