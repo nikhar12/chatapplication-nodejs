@@ -2,7 +2,7 @@ $(document).ready(function () {
   //clicking on ttt boxes
 
   $(".gbox").click(function () {
-    if (usertype != "spec") {
+    if (usertype != "spec" && gameOngoing == 1) {
       if (username == turn) {
         let boxnumber = $(this).attr("id");
         console.log(boxnumber);
